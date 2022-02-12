@@ -1,0 +1,19 @@
+<?php
+
+if (php_sapi_name() !== 'cli') {
+    exit;
+}
+
+require __DIR__ . '/src/apiclient/Helper.php';
+
+ 
+print "Enter absolute path of credentials file (usually 'credentials.json'). Ex: path/to/credentials.json:". PHP_EOL;
+$credentialFilePath = trim(fgets(STDIN));
+
+print "Enter absolute path of destination for new token file (usually 'token.json'). Ex: path/to/token.json:". PHP_EOL;
+$tokenDestination = trim(fgets(STDIN));
+
+use reandimo\GoogleSheetsApiHelper;
+
+$helper = new reandimo\GoogleSheetsApi\Helper($credentialFilePath);
+$helper->firstAuth($tokenDestination);

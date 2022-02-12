@@ -1,0 +1,35 @@
+{
+  "name": "reandimo/google-sheets-helper",
+  "description": "A bunch of functions to work easily with Google Sheets API",
+  "keywords": [
+    "google",
+    "spreadsheet",
+    "php",
+    "excel",
+    "sheet",
+    "spreadsheet helper"
+  ],
+  "homepage": "https://github.com/reandimo/google-sheets-helper",
+  "type": "library",
+  "license": "MIT",
+  "support": {
+    "issues": "https://github.com/reandimo/google-sheets-helper/issues",
+    "source": "https://github.com/reandimo/google-sheets-helper"
+  },
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.4",
+    "google/apiclient": "^2.0"
+  },
+  "autoload": {
+    "classmap": [
+      "src/apiclient"
+    ]
+  },
+  "authors": [
+    {
+      "name": "Renan Diaz",
+      "email": "reandimo23@gmail.com"
+    }
+  ]
+}
