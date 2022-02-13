@@ -6,14 +6,21 @@ if (php_sapi_name() !== 'cli') {
 
 require __DIR__ . '/src/apiclient/Helper.php';
 
- 
-print "Enter absolute path of credentials file (usually 'credentials.json'). Ex: path/to/credentials.json:". PHP_EOL;
+print "Enter default path to find credential.json file [leave blank to use current: ".getcwd()."]:". PHP_EOL;
+$defaultPath = (trim(fgets(STDIN)) == "") ? getcwd() : trim(fgets(STDIN));
+
+print "Enter relative path of credentials file (usually 'credentials.json'). Ex: /path/to/credentials.json:". PHP_EOL;
 $credentialFilePath = trim(fgets(STDIN));
 
-print "Enter absolute path of destination for new token file (usually 'token.json'). Ex: path/to/token.json:". PHP_EOL;
+print "Enter relative path of destination for new token file (usually 'token.json'). Ex: /path/to/token.json:". PHP_EOL;
 $tokenDestination = trim(fgets(STDIN));
+
+if(file_exists($defaultPath.$tokenDestination)){
+    print "{$defaultPath}{$tokenDestination} file already exist. Try access to the API.";
+    exit;
+}
 
 use reandimo\GoogleSheetsApiHelper;
 
-$helper = new reandimo\GoogleSheetsApi\Helper($credentialFilePath);
-$helper->firstAuth($tokenDestination);
+$helper = new reandimo\GoogleSheetsApi\Helper($defaultPath.$credentialFilePath);
+$helper->firstAuth($defaultPath.$tokenDestination);
