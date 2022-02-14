@@ -1,6 +1,5 @@
 <?php
 
-
 namespace reandimo\GoogleSheetsApi;
 
 use Exception;
@@ -17,6 +16,11 @@ use Exception;
 
 class Helper
 {
+
+    const LETTERS = [
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+    ];
+
     /**
      * @var Google_Client the authorized client object
      */
@@ -41,6 +45,11 @@ class Helper
      * @var string the current range of the sheet in use
      */
     public $range;
+
+    /**
+     * @var string the current input option. RAW = insert data entered as it. USER_ENTERED = The values will be parsed as if the user typed them into the UI. <https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption>
+     */
+    public $valueInputOption = "RAW";
 
     /**
      * @var string absolute path of credential file location
@@ -92,8 +101,28 @@ class Helper
 
     public function getSpreadsheetRange()
     {
-        return $this->service;
+        return $this->range;
     }
+
+    public function setWorksheetName(?string $worksheetName)
+    {
+        $this->worksheetName = $worksheetName;
+    }
+
+    public function getWorksheetName()
+    {
+        return $this->worksheetName;
+    } 
+
+    public function setValueInputOption(?string $valueInputOption)
+    {
+        $this->valueInputOption = $valueInputOption;
+    }
+
+    public function getValueInputOption()
+    {
+        return $this->valueInputOption;
+    } 
 
     public function firstAuth(?string $tokenPath = null)
     {
@@ -172,56 +201,99 @@ class Helper
     }
 
     /**
-     * Inserts a single row after last row of the current spreadsheet
-     * @param string $spreadsheetId The ID of spreadsheet to insert
-     * @param string $range Range of columns for insert. Example: Sheet1!A:D 
+     * Append rows after last row of the current spreadsheet
+     * @param array $rowsData Array of values to insert in sheets
      * @see https://developers.google.com/sheets/api/guides/concepts
      * @return int The number of updated rows.
      * 
      */
-    public function insertSingleRow(?array $row = [])
+    public function append(?array $rowsData = [])
     {
 
-        $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $row]);
-        $this->service->spreadsheets_values->append(
+        $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $rowsData]);
+        $append = $this->service->spreadsheets_values->append(
             $this->getSpreadsheetId(),
-            $this->range,
+            $this->getSpreadsheetRange(),
             $valueRange,
-            ["valueInputOption" => "RAW"],
+            ["valueInputOption" => $this->getValueInputOption()],
             ["insertDataOption" => "INSERT_ROWS"]
         );
+        return $append;
+    }
+
+        /**
+     * Inserts rows after last row of the current spreadsheet
+     * @param array $rowsData Array of values to insert in sheets
+     * @see https://developers.google.com/sheets/api/guides/concepts
+     * @return int The number of updated rows.
+     * 
+     */
+    public function insert(?array $rowsData = []): object
+    {
+
+        $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $rowsData]);
+        $insert = $this->service->spreadsheets_values->append(
+            $this->getSpreadsheetId(),
+            $this->getSpreadsheetRange(),
+            $valueRange,
+            ["valueInputOption" => $this->getValueInputOption()],
+            ["insertDataOption" => "INSERT_ROWS"]
+        );
+        return $insert;
     }
 
     /**
-     * Update a single row after last row of the current spreadsheet
+     * Append a single row after last row of the current spreadsheet
+     * @param array $row Array of values to append in sheets
+     * @see https://developers.google.com/sheets/api/guides/concepts
+     * @return Google\Service\Sheets\UpdateValuesResponse Object containing data of recent updates.
+     * 
+     */
+    public function appendSingleRow(?array $row = []): object
+    {
+
+        $valueRange = new \Google_Service_Sheets_ValueRange(["values" => [$row]]);
+        $insert = $this->service->spreadsheets_values->append(
+            $this->getSpreadsheetId(),
+            $this->getSpreadsheetRange(),
+            $valueRange,
+            ["valueInputOption" => $this->getValueInputOption()],
+            ["insertDataOption" => "INSERT_ROWS"]
+        );
+        return $insert->getUpdates();
+    }
+
+    /**
+     * Update a range of the current spreadsheet
      * @param string $spreadsheetId The ID of spreadsheet to insert
      * @param string $range Range of columns for insert. Example: Sheet1!A:D 
      * @see https://developers.google.com/sheets/api/guides/concepts
      * @return int The number of updated rows.
      * 
      */
-    public function updateSingleRow(?array $row = []): int
+    public function update(?array $row = []): int
     {
 
         if (empty($this->getSpreadsheetId()) && empty($spreadsheetId)) {
             throw new Exception("There's no ID spreadsheet set.");
         }
 
-        if (empty($this->getSpreadsheetRange()) && empty($this->range)) {
+        if (empty($this->getSpreadsheetRange()) && empty($this->getSpreadsheetRange())) {
             throw new Exception("There's no spreadsheet range set.");
         }
 
         $newCellValues = [$row];
         $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $newCellValues]);
-        $update_sheet = $this->service->spreadsheets_values->update(
+        $updateSheet = $this->service->spreadsheets_values->update(
             $this->getSpreadsheetId(),
-            $this->range,
+            $this->getSpreadsheetRange(),
             $valueRange,
-            ["valueInputOption" => "RAW"]
+            ["valueInputOption" => $this->getValueInputOption()]
         );
 
-        return $update_sheet->getUpdatedCells();
+        return $updateSheet;
     }
+    
     /**
      * Quick function to update a single cell in current worksheet
      * @param string $cell Column letter and row number of cell to update. Example: A1
@@ -243,43 +315,71 @@ class Helper
 
         $range = "{$this->worksheetName}!{$cell}:{$cell[0]}";
         $valueRange = new Google_Service_Sheets_ValueRange(["values" => [$value]]);
-        $update_sheet = $service->spreadsheets_values->update($sheets::COURSEA_SHEET_ID, $range, $valueRange, ["valueInputOption" => "RAW"]);
-        return $update_sheet->getUpdatedCells();
+        $updateSheet = $this->service->spreadsheets_values->update(
+            $this->getSpreadsheetId(), 
+            $range, 
+            $valueRange, 
+            ["valueInputOption" => $this->getValueInputOption()]
+        );
+        return $updateSheet;
     }
 
     /**
-     * Get Row Number Map by key or all from the actived sheet
-     * 
-     * @param array $config Required config to execute
-     * @param string|int $config[line] Key set by addRow()
-     * @param string|int $config[startColumnIndex] Key set by addRow()
-     * @param string|int $config[endColumnIndex] Key set by addRow()
-     * @param int        $config[r] R color code. [0,255]
-     * @param int        $config[g] G color code. [0,255]
-     * @param int        $config[b] B color code. [0,255]
+     * Calculates the index of column letter IDs given
+     * @param string $letters columns letters IDs to calculate. Example: BZ
+     * @return int
      * 
      */
-    public function colorLine(?array $config): void
+    public function getColumnLettersIndex(?string $letters = null): int
     {
+        $letterCount = strlen($letters);
+        if($letterCount == 1){
+            return array_search($letters, self::LETTERS) + 1;
+        }else{
+            $index = 0;
+            $lastElementIndex = $letterCount-1;
+            for ($i=0; $i < $letterCount; $i++) { 
+                if( $letters[$i] == $letters[$lastElementIndex] ){
+                    $index = $index + $this->getColumnLettersIndex($letters[$lastElementIndex]);
+                }else{
+                    $index = $index + (count(self::LETTERS) * $this->getColumnLettersIndex($letters[0]));
+                }
+            }
+            return $index;
+        }
+    } 
 
-        if (empty($config)) {
-            throw new Exception("No configuration set to execute colorLine", 1);
+    /**
+     * Get Row Number Map by key or all from the actived sheet
+     * @param array $rgb RGB color code. Example: [142, 68, 173, 1.0]
+     * @return void
+     * 
+     */
+    public function colorRange(?array $rgb): void
+    { 
+        if (count($rgb) < 3) {
+            throw new Exception("RGB not correctly configured", 1);
         }
 
-        $config['a'] = $config['a'] ?? 1.0;
-        $config['r'] = ((int)$config['r'] / 255);
-        $config['g'] = ((int)$config['g'] / 255);
-        $config['b'] = ((int)$config['b'] / 255);
+        $config['r'] = ((int)$rgb[0] / 255);
+        $config['g'] = ((int)$rgb[1] / 255);
+        $config['b'] = ((int)$rgb[2] / 255);
+        $config['a'] = isset($rgb[3]) ? (float)$config['rgb'][3] : 1.0;
 
-        $sheetId = $this->service->spreadsheets->get($this->getSpreadsheetId(), ['ranges' => $this->worksheetName]);
-
+        $sheetId = $this->service->spreadsheets->get($this->getSpreadsheetId(), ['ranges' => $this->getWorksheetName()]);
+        $ranges = explode(':', $this->getSpreadsheetRange());
+        $columnStartLetters = preg_replace('/[0-9]+/', '', $ranges[0]);
+        $columnEndLetters = preg_replace('/[0-9]+/', '', $ranges[1]);
+        $rowStart = preg_replace("/[^0-9]/", "", $ranges[0]);
+        $rowEnd = (!empty($ranges[1])) ? preg_replace("/[^0-9]/", "", $ranges[1]) : $rowStart;
         $myRange = [
             'sheetId' => $sheetId->sheets[0]->properties->sheetId,
-            'startRowIndex' => $config['row'] - 1,
-            'endRowIndex' => $config['row'],
-            'startColumnIndex' => $config['startColumnIndex'],
-            'endColumnIndex' => $config['endColumnIndex'],
+            'startRowIndex' => $rowStart - 1,
+            'endRowIndex' => $rowEnd,
+            'startColumnIndex' => $this->getColumnLettersIndex($columnStartLetters) - 1,
+            'endColumnIndex' => $this->getColumnLettersIndex($columnEndLetters),
         ];
+
         $format = [
             "backgroundColor" => [
                 "red" => $config['r'],
@@ -305,10 +405,11 @@ class Helper
             'requests' => $requests
         ]);
 
-        $response = $this->service->spreadsheets->batchUpdate(
+        $this->service->spreadsheets->batchUpdate(
             $this->getSpreadsheetId(),
             $batchUpdateRequest
         );
 
-    }
+    } 
+
 }
