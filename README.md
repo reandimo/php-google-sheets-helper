@@ -1,4 +1,3 @@
-# google-sheets-helper
 PHP Google Spreadsheets Helper
 ======================
 
@@ -68,7 +67,57 @@ USAGE
 You can have multiple sheet instances just invoke the Helper as many times you want:
 
 ```php
+use reandimo\GoogleSheetsApi\Helper;
+
+$sheet1 = new Helper($defaultPath.$credentialFilePath);
 $sheet1->setSpreadsheetId('somespreadsheetid');
 $sheet1->setWorksheetName('Sheet1');
 $sheet1->setSpreadsheetRange('A1:A20');
+
+$sheet2 = new Helper($defaultPath.$credentialFilePath);
+$sheet2->setSpreadsheetId('somespreadsheetid');
+$sheet2->setWorksheetName('Sheet2');
+$sheet2->setSpreadsheetRange('B1:B20');
+
 ```
+
+### Insert single row
+```php
+$sheet1->setSpreadsheetRange('A1:A3');
+$insert = $sheet1->insertSingleRow([
+  'some',
+  'useful',
+  'data',
+]);
+```
+
+The function will return number of rows updated as int. So you can check if its done like this:
+
+```php
+if($insert >= 1){
+  echo 'Insert done. Hackerman wuz here.';
+}
+```
+
+### Insert single row
+
+### Update single cell
+
+
+TIPS
+------------
+
+Some things aren't clear in Google's documentation without diggin a lot so i'll be leaving tips here:
+
+- To leave blank a cell when you do an insert or update, you have to use this const: ``` Google_Model::NULL_VALUE ```.
+
+  Example: 
+
+  ```php 
+    $sheet1->insertSingleRow([
+      'John Doe',
+      'jhon@doe.com',
+      Google_Model::NULL_VALUE,
+      'Sagittarius',
+    ]);
+  ```
