@@ -46,6 +46,18 @@ $tokenPath = 'path/to/token.json';
 $sheet1 = new \reandimo\GoogleSheetsAPI\Helper($credentialFilePath, $tokenPath);
 ```
     
+Also you can use putenv() to set credentials.json and token.json like this:
+
+```php
+require __DIR__ . '/vendor/autoload.php';
+
+putenv('credentialFilePath=path/to/credentials.json');
+putenv('tokenPath=path/to/token.json');
+$sheet1 = new \reandimo\GoogleSheetsAPI\Helper();
+```
+
+Now when you create a new instance, the class automatically detects the paths. This is the recommended way to do it.
+
 ---
 
 CREDENTIALS

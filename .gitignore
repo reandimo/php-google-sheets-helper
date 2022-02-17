@@ -1,0 +1,11 @@
+#-------------------------
+# Composer
+#-------------------------
+vendor/
+composer.lock
+
+#-------------------------
+# Credentials
+#-------------------------
+credentials.json
+token.json

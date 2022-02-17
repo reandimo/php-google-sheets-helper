@@ -54,29 +54,47 @@ class Helper
     /**
      * @var string absolute path of credential file location
      */
-    private $credentialFilePath;
+    public $credentialFilePath;
 
     /**
      * @var string absolute path of token file location for auth, if not exist you need to follow the CLI steps for first time auth: <https://developers.google.com/sheets/api/quickstart/php#step_2_set_up_the_sample>
      */
-    private $tokenPath;
+    public $tokenPath;
 
     /**
      * @var string custom app name for auth in google: <https://developers.google.com/sheets/api/quickstart/php#step_2_set_up_the_sample>
      */
-    private $appName;
+    public $appName;
 
     public function __construct(?string $credentialFilePath = null, ?string $tokenPath = null)
     {
-        if (!file_exists($credentialFilePath)) {
-            throw new Exception("No credential file in: {$credentialFilePath}");
+
+        ## ENV SETUP
+        if( getenv('credentialFilePath') && getenv('tokenPath') ){
+            if (!file_exists(getenv('credentialFilePath'))) {
+                throw new Exception("No credential file in: ".getenv('credentialFilePath'));
+            }
+            $this->tokenPath = getenv('tokenPath');
+            $this->credentialFilePath = getenv('credentialFilePath');
         }
-        $this->tokenPath = $tokenPath;
-        $this->credentialFilePath = $credentialFilePath;
+
+        ##PARAMS SETUP
+        else{
+            if (!file_exists($credentialFilePath)) {
+                throw new Exception("No credential file in: {$credentialFilePath}");
+            }
+            $this->tokenPath = $tokenPath;
+            $this->credentialFilePath = $credentialFilePath;
+        }
+
+        ## SETUP CLIENT
         if (!empty($this->tokenPath) && file_exists($this->tokenPath)) {
             $this->client = $this->getClient();
             $this->service = new \Google_Service_Sheets($this->client);
+        }else{
+            throw new Exception("No token file in: {$this->tokenPath}");
         }
+
     }
 
     public function setSpreadsheetId(?string $spreadsheetId)
@@ -405,7 +423,7 @@ class Helper
             'requests' => $requests
         ]);
 
-        $this->service->spreadsheets->batchUpdate(
+        return $this->service->spreadsheets->batchUpdate(
             $this->getSpreadsheetId(),
             $batchUpdateRequest
         );
