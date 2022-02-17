@@ -220,7 +220,7 @@ class Helper
 
     /**
      * Append rows after last row of the current spreadsheet
-     * @param array $rowsData Array of values to insert in sheets
+     * @param array $rowsData Array of values to insert in sheets. Must be a multi-dimensional array.
      * @see https://developers.google.com/sheets/api/guides/concepts
      * @return int The number of updated rows.
      * 
@@ -236,29 +236,8 @@ class Helper
             ["valueInputOption" => $this->getValueInputOption()],
             ["insertDataOption" => "INSERT_ROWS"]
         );
-        return $append;
-    }
-
-        /**
-     * Inserts rows after last row of the current spreadsheet
-     * @param array $rowsData Array of values to insert in sheets
-     * @see https://developers.google.com/sheets/api/guides/concepts
-     * @return int The number of updated rows.
-     * 
-     */
-    public function insert(?array $rowsData = []): object
-    {
-
-        $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $rowsData]);
-        $insert = $this->service->spreadsheets_values->append(
-            $this->getSpreadsheetId(),
-            $this->getSpreadsheetRange(),
-            $valueRange,
-            ["valueInputOption" => $this->getValueInputOption()],
-            ["insertDataOption" => "INSERT_ROWS"]
-        );
-        return $insert;
-    }
+        return $append->getUpdates();
+    } 
 
     /**
      * Append a single row after last row of the current spreadsheet
@@ -280,19 +259,18 @@ class Helper
         );
         return $insert->getUpdates();
     }
-
+    
     /**
      * Update a range of the current spreadsheet
-     * @param string $spreadsheetId The ID of spreadsheet to insert
-     * @param string $range Range of columns for insert. Example: Sheet1!A:D 
+     * @param array $newValues The ID of spreadsheet to insert. Must be a multi-dimensional array.
      * @see https://developers.google.com/sheets/api/guides/concepts
-     * @return int The number of updated rows.
+     * @return Google\Service\Sheets\UpdateValuesResponse The response object.
      * 
      */
-    public function update(?array $row = []): int
+    public function update(?array $newValues = []): object
     {
 
-        if (empty($this->getSpreadsheetId()) && empty($spreadsheetId)) {
+        if (empty($this->getSpreadsheetId())) {
             throw new Exception("There's no ID spreadsheet set.");
         }
 
@@ -300,8 +278,7 @@ class Helper
             throw new Exception("There's no spreadsheet range set.");
         }
 
-        $newCellValues = [$row];
-        $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $newCellValues]);
+        $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $newValues]);
         $updateSheet = $this->service->spreadsheets_values->update(
             $this->getSpreadsheetId(),
             $this->getSpreadsheetRange(),
@@ -320,7 +297,7 @@ class Helper
      * @return int The number of updated rows.
      * 
      */
-    public function updateSingleCell(?string $cell = null, ?string $value = null): int
+    public function updateSingleCell(?string $cell = null, ?string $value = null): object
     {
 
         if ($value == null) {
@@ -332,7 +309,8 @@ class Helper
         }
 
         $range = "{$this->worksheetName}!{$cell}:{$cell[0]}";
-        $valueRange = new Google_Service_Sheets_ValueRange(["values" => [$value]]);
+        $wrappedValue = [[$value]];
+        $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $wrappedValue]);
         $updateSheet = $this->service->spreadsheets_values->update(
             $this->getSpreadsheetId(), 
             $range, 
@@ -368,7 +346,7 @@ class Helper
     } 
 
     /**
-     * Get Row Number Map by key or all from the actived sheet
+     * Change background of a given range
      * @param array $rgb RGB color code. Example: [142, 68, 173, 1.0]
      * @return void
      * 
@@ -423,11 +401,29 @@ class Helper
             'requests' => $requests
         ]);
 
-        return $this->service->spreadsheets->batchUpdate(
+        $this->service->spreadsheets->batchUpdate(
             $this->getSpreadsheetId(),
             $batchUpdateRequest
         );
 
     } 
+
+    /**
+     * Get all worksheets of current spreadsheet
+     * @return object
+     * 
+     */
+	public function getSpreadsheetWorksheets() : object
+    {
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set.");
+        }
+        $spreadSheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
+        $sheets = $spreadSheet->getSheets();
+        foreach($sheets as $sheet) {
+            $sheets[] = $sheet->properties->sheetId;
+        }   
+        return (object)$sheets;
+	} 
 
 }
