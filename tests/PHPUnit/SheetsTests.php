@@ -102,11 +102,8 @@ class SheetsTests extends TestCase
 
     public function testColumnIndexesFunction()
     {
-        putenv('credentialFilePath=' . dirname(__DIR__, 2) . '/credentials.json');
-        putenv('tokenPath=' . dirname(__DIR__, 2) . '/token.json');
-        $sheet1 = new Helper();
-        $this->assertEquals($sheet1->getColumnLettersIndex('AZ'), 52);
-        $this->assertEquals($sheet1->getColumnLettersIndex('CZ'), 104);
+        $this->assertEquals(Helper::getColumnLettersIndex('AZ'), 52);
+        $this->assertEquals(Helper::getColumnLettersIndex('CZ'), 104);
     }
 
     public function testUpdateSingleCell()

@@ -10,10 +10,25 @@ This library is a helper that encapsulate [Google APIs Client Library for PHP](h
 OUTLINE
 -------
 
-* [Installation](#installation)
 * [Requirements](#requirements)
+* [Installation](#installation)
+* [Credentials](#credentials)
 * [Usage](#usage)
-  - [Import & Export](#import--export) 
+  - [Create Instance](#create) 
+    - [Set sheets props](#set--props) 
+  - [Append Data](#append) 
+    - [Append a single row](#append--single) 
+    - [Append a range](#append--range) 
+  - [Update Data](#update) 
+    - [Update single cell](#update--single--range) 
+    - [Update a range](#update--range) 
+  - [Misc](#misc) 
+    - [Change background color of a range](#color--background) 
+    - [Calculate column index by his letters](#calculate--col--index) 
+  - [Personal Note](#personal--note) 
+  - [License](#license) 
+  - [Question? Issues?](#questions--issues) 
+  - [Who's Behind](#whos--behind) 
 
 ---
 
@@ -39,21 +54,21 @@ Run Composer in your project:
 Then you could call it after Composer is loaded depended on your PHP framework:
 
 ```php
-require __DIR__ . '/vendor/autoload.php';
+  require __DIR__ . '/vendor/autoload.php';
 
-$credentialFilePath = 'path/to/credentials.json';
-$tokenPath = 'path/to/token.json';
-$sheet1 = new \reandimo\GoogleSheetsAPI\Helper($credentialFilePath, $tokenPath);
+  $credentialFilePath = 'path/to/credentials.json';
+  $tokenPath = 'path/to/token.json';
+  $sheet1 = new \reandimo\GoogleSheetsAPI\Helper($credentialFilePath, $tokenPath);
 ```
     
 Also you can use putenv() to set credentials.json and token.json like this:
 
 ```php
-require __DIR__ . '/vendor/autoload.php';
+  require __DIR__ . '/vendor/autoload.php';
 
-putenv('credentialFilePath=path/to/credentials.json');
-putenv('tokenPath=path/to/token.json');
-$sheet1 = new \reandimo\GoogleSheetsAPI\Helper();
+  putenv('credentialFilePath=path/to/credentials.json');
+  putenv('tokenPath=path/to/token.json');
+  $sheet1 = new \reandimo\GoogleSheetsAPI\Helper();
 ```
 
 Now when you create a new instance, the class automatically detects the paths. This is the recommended way to do it.
@@ -74,62 +89,139 @@ This is a 3 step script based on the quickstart.php mentioned in google's docume
 USAGE
 -----
 
-### Set sheets props
+### Create Instance
+
+#### Set sheet props
 
 You can have multiple sheet instances just invoke the Helper as many times you want:
 
 ```php
-use reandimo\GoogleSheetsApi\Helper;
+  use reandimo\GoogleSheetsApi\Helper;
 
-$sheet1 = new Helper($defaultPath.$credentialFilePath);
-$sheet1->setSpreadsheetId('somespreadsheetid');
-$sheet1->setWorksheetName('Sheet1');
-$sheet1->setSpreadsheetRange('A1:A20');
+  putenv('credentialFilePath=path/to/credentials.json');
+  putenv('tokenPath=path/to/token.json');
 
-$sheet2 = new Helper($defaultPath.$credentialFilePath);
-$sheet2->setSpreadsheetId('somespreadsheetid');
-$sheet2->setWorksheetName('Sheet2');
-$sheet2->setSpreadsheetRange('B1:B20');
+  $sheet1 = new Helper();
+  $sheet1->setSpreadsheetId('somespreadsheetid');
+  $sheet1->setWorksheetName('Sheet1');
+  $sheet1->setSpreadsheetRange('A1:A20');
 
+  $sheet2 = new Helper();
+  $sheet2->setSpreadsheetId('somespreadsheetid');
+  $sheet2->setWorksheetName('Sheet2');
+  $sheet2->setSpreadsheetRange('B1:B20');
 ```
 
-### Insert single row
+### Append Data
+
+#### Append a single row
 ```php
-$sheet1->setSpreadsheetRange('A1:A3');
-$insert = $sheet1->insertSingleRow([
-  'some',
-  'useful',
-  'data',
-]);
+  $sheet1->setSpreadsheetRange('A1:A3');
+  $insert = $sheet1->appendSingleRow([
+    'some',
+    'useful',
+    'data',
+  ]);
 ```
 
 The function will return number of rows updated as int. So you can check if its done like this:
 
 ```php
-if($insert >= 1){
-  echo 'Insert done. Hackerman wuz here.';
-}
+  if($insert >= 1){
+    echo 'Insert done Hackerman.';
+  }
 ```
 
-### Insert single row
+#### Append a range
+```php
+  $sheet1 = new Helper();
+  $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+  $sheet1->setWorksheetName('Sheet1');
+  $sheet1->setSpreadsheetRange('A1:A');
+  $i = $sheet1->append([
+      ['test4', 'this4', 'shit4'],
+      ['test2', 'this2', 'shit2'],
+      ['test3', 'this3', 'shit3'],
+  ]);
+```
 
-### Update single cell
+### Update Data
 
+#### Update single cell
+```php
+  $sheet1 = new Helper();
+  $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+  $sheet1->setWorksheetName('Sheet1');
+  $update = $sheet1->updateSingleCell('B5', "Hi i'm a test!");
+```
+
+#### Update a range
+```php
+  $sheet1 = new Helper();
+  $sheet1->setSpreadsheetId('somesheetid');
+  $sheet1->setWorksheetName('Sheet1');
+  $sheet1->setSpreadsheetRange('A1:F5');
+  $update = $sheet1->update([
+      ['val1', 'test2', 'int3', 'four', '5', 'six6'],
+      ['val1', 'test2', 'int3', 'four', '5', 'six6'],
+      ['val1', 'test2', 'int3', 'four', '5', 'six6'],
+      ['val1', 'test2', 'int3', 'four', '5', 'six6'],
+      ['val1', 'test2', 'int3', 'four', '5', 'six6'],
+  ]);
+
+  // Get updated cells
+  if($update->getUpdatedCells() >= 1){
+    echo 'Range updated.';
+  }
+```
+
+### Misc
+
+#### Change background color of a range
+```php
+  $sheet1 = new Helper();
+  $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+  $sheet1->setWorksheetName('Sheet1');
+  $sheet1->setSpreadsheetRange('A1:Z10');
+  $sheet1->colorRange([142, 68, 173]);
+```
+
+#### Calculate column index by his letters
+If for some reason you need to calculate the column positions of a column by his letters, this is the way:
+
+```php 
+  Helper::getColumnLettersIndex('AZ'); // this will return 52
+```
 
 TIPS
 ------------
 
-Some things aren't clear in Google's documentation without diggin a lot so i'll be leaving tips here:
+Some things aren't very clear in Google's documentation without diggin a lot so i'll be leaving tips here:
 
 - To leave blank a cell when you do an insert or update, you have to use this const: ``` Google_Model::NULL_VALUE ```.
 
   Example: 
 
   ```php 
-    $sheet1->insertSingleRow([
+    $sheet1->appendSingleRow([
       'John Doe',
       'jhon@doe.com',
       Google_Model::NULL_VALUE,
       'Sagittarius',
     ]);
   ```
+
+## Personal Note
+This package is far from being complete i'll be working on it to make more useful stuff on my free time. But for now, it can be useful for someone (i guessss).
+
+## License
+
+This Package is open source and released under MIT license. See LICENSE file for more info.
+
+## Question? Issues?
+
+Feel free to open issues for suggestions, questions and issues.
+
+## Who's Behind
+
+Renan Diaz, i'm dealing with PHP since 2017 & Google's API since 2019. Feel free to write me to my email (Please don't send any multi-level crap).

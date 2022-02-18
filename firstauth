@@ -4,6 +4,7 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
+require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/src/apiclient/Helper.php';
 
 print "Enter default path to find credential.json file [leave blank to use current: ".getcwd()."]:". PHP_EOL;
@@ -11,10 +12,17 @@ $defaultPath = (trim(fgets(STDIN)) == "") ? getcwd() : trim(fgets(STDIN));
 
 print "Enter relative path of credentials file (usually 'credentials.json'). Ex: /path/to/credentials.json:". PHP_EOL;
 $credentialFilePath = trim(fgets(STDIN));
+if(!is_file($defaultPath.$credentialFilePath)){
+    print $defaultPath.$credentialFilePath." is not a valid file name. Try again.";
+    exit;
+}
 
 print "Enter relative path of destination for new token file (usually 'token.json'). Ex: /path/to/token.json:". PHP_EOL;
 $tokenDestination = trim(fgets(STDIN));
-
+if(!is_file($defaultPath.$tokenDestination)){
+    print $defaultPath.$tokenDestination." is not a valid file name. Try again.";
+    exit;
+}
 if(file_exists($defaultPath.$tokenDestination)){
     print "{$defaultPath}{$tokenDestination} file already exist. Try access to the API.";
     exit;

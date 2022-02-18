@@ -91,8 +91,6 @@ class Helper
         if (!empty($this->tokenPath) && file_exists($this->tokenPath)) {
             $this->client = $this->getClient();
             $this->service = new \Google_Service_Sheets($this->client);
-        }else{
-            throw new Exception("No token file in: {$this->tokenPath}");
         }
 
     }
@@ -169,9 +167,9 @@ class Helper
         // Check to see if there was an error.
         if (array_key_exists('error', $accessToken)) {
             throw new Exception(join(', ', $accessToken));
-        }
-        mkdir(dirname($this->tokenPath), 0700, true);
-        file_put_contents($this->tokenPath, json_encode($client->getAccessToken()));
+        } 
+        @mkdir(dirname($this->tokenPath), 0700, true);
+        @file_put_contents($this->tokenPath, json_encode($client->getAccessToken()));
 
         if (file_exists($this->tokenPath)) {
             print "Token file successfully created in: {$this->tokenPath}. Congrats now you can access the API.";
@@ -294,7 +292,7 @@ class Helper
      * @param string $cell Column letter and row number of cell to update. Example: A1
      * @param string $value New value to set. 
      * @see https://developers.google.com/sheets/api/guides/concepts
-     * @return int The number of updated rows.
+     * @return object The number of updated rows.
      * 
      */
     public function updateSingleCell(?string $cell = null, ?string $value = null): object
@@ -326,7 +324,7 @@ class Helper
      * @return int
      * 
      */
-    public function getColumnLettersIndex(?string $letters = null): int
+    public static function getColumnLettersIndex(?string $letters = null): int
     {
         $letterCount = strlen($letters);
         if($letterCount == 1){
@@ -336,9 +334,9 @@ class Helper
             $lastElementIndex = $letterCount-1;
             for ($i=0; $i < $letterCount; $i++) { 
                 if( $letters[$i] == $letters[$lastElementIndex] ){
-                    $index = $index + $this->getColumnLettersIndex($letters[$lastElementIndex]);
+                    $index = $index + Helper::getColumnLettersIndex($letters[$lastElementIndex]);
                 }else{
-                    $index = $index + (count(self::LETTERS) * $this->getColumnLettersIndex($letters[0]));
+                    $index = $index + (count(self::LETTERS) * Helper::getColumnLettersIndex($letters[0]));
                 }
             }
             return $index;
