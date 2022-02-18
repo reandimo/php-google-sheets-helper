@@ -14,21 +14,21 @@ OUTLINE
 * [Installation](#installation)
 * [Credentials](#credentials)
 * [Usage](#usage)
-  - [Create Instance](#create) 
-    - [Set sheets props](#set--props) 
-  - [Append Data](#append) 
-    - [Append a single row](#append--single) 
-    - [Append a range](#append--range) 
-  - [Update Data](#update) 
-    - [Update single cell](#update--single--range) 
-    - [Update a range](#update--range) 
+  - [Create Instance](#create-instance) 
+    - [Set sheets props](#set-sheets-props) 
+  - [Append Data](#append-data) 
+    - [Append a single row](#append-a-single-row) 
+    - [Append a range](#append-a-range) 
+  - [Update Data](#update-data) 
+    - [Update single cell](#update-single-cell) 
+    - [Update a range](#update-a-range) 
   - [Misc](#misc) 
-    - [Change background color of a range](#color--background) 
-    - [Calculate column index by his letters](#calculate--col--index) 
-  - [Personal Note](#personal--note) 
+    - [Change background color of a range](#change-background-color-of-a-range) 
+    - [Calculate column index by his letters](#calculate-column-index-by-his-letters) 
+  - [Personal Note](#personal-note) 
   - [License](#license) 
-  - [Question? Issues?](#questions--issues) 
-  - [Who's Behind](#whos--behind) 
+  - [Question? Issues?](#questions-issues) 
+  - [Who's Behind](#whos-behind) 
 
 ---
 
@@ -135,7 +135,7 @@ The function will return number of rows updated as int. So you can check if its 
 #### Append a range
 ```php
   $sheet1 = new Helper();
-  $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+  $sheet1->setSpreadsheetId('somespreadsheetid');
   $sheet1->setWorksheetName('Sheet1');
   $sheet1->setSpreadsheetRange('A1:A');
   $i = $sheet1->append([
@@ -150,7 +150,7 @@ The function will return number of rows updated as int. So you can check if its 
 #### Update single cell
 ```php
   $sheet1 = new Helper();
-  $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+  $sheet1->setSpreadsheetId('somespreadsheetid');
   $sheet1->setWorksheetName('Sheet1');
   $update = $sheet1->updateSingleCell('B5', "Hi i'm a test!");
 ```
@@ -180,7 +180,7 @@ The function will return number of rows updated as int. So you can check if its 
 #### Change background color of a range
 ```php
   $sheet1 = new Helper();
-  $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+  $sheet1->setSpreadsheetId('somespreadsheetid');
   $sheet1->setWorksheetName('Sheet1');
   $sheet1->setSpreadsheetRange('A1:Z10');
   $sheet1->colorRange([142, 68, 173]);
