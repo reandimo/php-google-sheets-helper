@@ -1,13 +1,13 @@
-PHP Google Spreadsheets Helper
+Google Spreadsheets API Helper
 ======================
 
-PHP Google Spreadsheets - A bunch of functions to work easily with Google Sheets API
+Google Spreadsheets API Helper - A bunch of functions to work easily with Google Sheets API
 
 This library is a helper that encapsulate [Google APIs Client Library for PHP](https://github.com/googleapis/google-api-php-client) ([Documentation](https://developers.google.com/sheets/api/quickstart/php)) for simple usage.
 
 --- 
 
-OUTLINE
+Outline
 -------
 
 * [Requirements](#requirements)
@@ -32,7 +32,7 @@ OUTLINE
 
 ---
 
-REQUIREMENTS
+Requirements
 ------------
 
 This library requires the following:
@@ -44,7 +44,7 @@ This library requires the following:
 
 ---
 
-INSTALLATION
+Installation
 ------------
 
 Run Composer in your project:
@@ -75,7 +75,7 @@ Now when you create a new instance, the class automatically detects the paths. T
 
 ---
 
-CREDENTIALS
+Credentials
 ------------
 
 Google API Client needs to validate with 2 files credentials.json and token.json, the last one can be generated with a script included in the package called firstauth. You can use to generate this file for first time only to grant access to the API.
@@ -86,7 +86,7 @@ This is a 3 step script based on the quickstart.php mentioned in google's docume
 
 ---
 
-USAGE
+Usage
 -----
 
 ### Create Instance
@@ -193,7 +193,7 @@ If for some reason you need to calculate the column positions of a column by his
   Helper::getColumnLettersIndex('AZ'); // this will return 52
 ```
 
-TIPS
+Tips
 ------------
 
 Some things aren't very clear in Google's documentation without diggin a lot so i'll be leaving tips here:
