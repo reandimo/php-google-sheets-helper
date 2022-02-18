@@ -15,7 +15,7 @@ OUTLINE
 * [Credentials](#credentials)
 * [Usage](#usage)
   - [Create Instance](#create-instance) 
-    - [Set sheets props](#set-sheets-props) 
+    - [Set sheets props](#set-sheet-props) 
   - [Append Data](#append-data) 
     - [Append a single row](#append-a-single-row) 
     - [Append a range](#append-a-range) 
