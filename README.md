@@ -120,11 +120,7 @@ You can have multiple sheet instances just invoke the Helper as many times you w
 #### Get values from range
 ```php
   $sheet1->setSpreadsheetRange('A1:A3');
-  $insert = $sheet1->appendSingleRow([
-    'some',
-    'useful',
-    'data',
-  ]);
+  $insert = $sheet1->get();
 ```
 
 ### Append Data
