@@ -27,7 +27,7 @@
   "autoload": {
     "classmap": [
       "src/apiclient",
-      "test/PHPUnit"
+      "tests/PHPUnit"
     ]
   },
   "authors": [
