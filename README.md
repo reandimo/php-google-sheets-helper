@@ -18,6 +18,8 @@ Outline
 * [Usage](#usage)
   - [Create Instance](#create-instance) 
     - [Set sheets props](#set-sheet-props) 
+  - [Get Values](#get-values) 
+    - [Get values from range](#get-values-from-range) 
   - [Append Data](#append-data) 
     - [Append a single row](#append-a-single-row) 
     - [Append a range](#append-a-range) 
@@ -40,7 +42,7 @@ Requirements
 This library requires the following:
 
 - Dependent on [Google Client API](https://developers.google.com/sheets/api/quickstart/php)
-    - PHP 7.4 or greater with the command-line interface (CLI) and 
+    - PHP 5.4 or greater with the command-line interface (CLI) and 
     - PHP extension JSON installed
     - A Google Cloud Platform project with the API enabled. To create a project and enable an API, refer to Create a project and enable the API
 
@@ -60,7 +62,7 @@ Then you could call it after Composer is loaded depended on your PHP framework:
 
   $credentialFilePath = 'path/to/credentials.json';
   $tokenPath = 'path/to/token.json';
-  $sheet1 = new \reandimo\GoogleSheetsAPI\Helper($credentialFilePath, $tokenPath);
+  $sheet1 = new \reandimo\GoogleSheetsApi\Helper($credentialFilePath, $tokenPath);
 ```
     
 Also you can use putenv() to set credentials.json and token.json like this:
@@ -70,7 +72,7 @@ Also you can use putenv() to set credentials.json and token.json like this:
 
   putenv('credentialFilePath=path/to/credentials.json');
   putenv('tokenPath=path/to/token.json');
-  $sheet1 = new \reandimo\GoogleSheetsAPI\Helper();
+  $sheet1 = new \reandimo\GoogleSheetsApi\Helper();
 ```
 
 Now when you create a new instance, the class automatically detects the paths. This is the recommended way to do it.

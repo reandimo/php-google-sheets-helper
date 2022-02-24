@@ -1,8 +1,5 @@
 <?php
 
-require dirname(__DIR__, 2) . '/vendor/autoload.php';
-require dirname(__DIR__, 2) . '/src/apiclient/Helper.php';
-
 use \PHPUnit\Framework\TestCase;
 use reandimo\GoogleSheetsApi\Helper;
 use Exception;
@@ -10,7 +7,7 @@ use Exception;
 class SheetsTests extends TestCase
 {
 
-    const GOOGLE_SHEET_TEST_ID = 'XXXXXXXX';
+    const GOOGLE_SHEET_TEST_ID = '1-bRRbBCS36VaO7_ewToX7UZVy0JXWR2K97SG8EfZhPk';
 
     public function testPutEnvCredentials()
     {
@@ -58,6 +55,17 @@ class SheetsTests extends TestCase
         $sheet1->setWorksheetName('Sheet1');
         $sheet1->setSpreadsheetRange('A1:A');
         $this->assertEquals($sheet1->getSpreadsheetRange(), 'A1:A');
+    }
+
+    public function testGet()
+    {
+        putenv('credentialFilePath=' . dirname(__DIR__, 2) . '/credentials.json');
+        putenv('tokenPath=' . dirname(__DIR__, 2) . '/token.json');
+        $sheet1 = new Helper();
+        $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+        $sheet1->setWorksheetName('Sheet1');
+        $sheet1->setSpreadsheetRange('A1:E5');
+        print_r($sheet1->get());
     }
 
     public function testSingleInsert()

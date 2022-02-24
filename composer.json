@@ -12,6 +12,12 @@
   "homepage": "https://github.com/reandimo/google-sheets-helper",
   "type": "library",
   "license": "MIT",
+  "authors": [
+    {
+      "name": "Renan Diaz",
+      "email": "reandimo23@gmail.com"
+    }
+  ],
   "support": {
     "issues": "https://github.com/reandimo/google-sheets-helper/issues",
     "source": "https://github.com/reandimo/google-sheets-helper"
@@ -27,15 +33,6 @@
   "autoload": {
     "psr-4": {
       "reandimo\\GoogleSheetsApi\\": "src/"
-    },
-    "classmap": [
-      "tests/PHPUnit"
-    ]
-  },
-  "authors": [
-    {
-      "name": "Renan Diaz",
-      "email": "reandimo23@gmail.com"
     }
-  ]
+  }
 }

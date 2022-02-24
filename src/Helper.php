@@ -3,6 +3,9 @@
 namespace reandimo\GoogleSheetsApi;
 
 use Exception;
+use \Google_Client;
+use \Google_Service_Sheets;
+use \Google_Service_Sheets_NamedRange;
 
 /**
  * Google Spreadsheet API Helper
@@ -217,6 +220,48 @@ class Helper
     }
 
     /**
+     * Creates a new spreadsheet.
+     * @param string $title Title of the new spreadsheet.
+     * @return string spreadsheet ID
+     */
+    public function create(?string $title): string
+    {
+        if (empty($title)) {
+            throw new Exception("You have to set a title for the new Spreadsheet.");
+        }
+        $spreadsheet = new \Google_Service_Sheets_Spreadsheet([
+            'properties' => [
+                'title' => $title
+            ]
+        ]);
+        $spreadsheet = $this->service->spreadsheets->create($spreadsheet, [
+            'fields' => 'spreadsheetId'
+        ]);
+        return $spreadsheet->spreadsheetId;
+    }
+
+    /**
+     * Get rows from a range 
+     * @see https://developers.google.com/sheets/api/guides/concepts
+     * @return array values of the range provided.
+     * 
+     */
+    public function get()
+    {
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set.");
+        }
+        if (empty($this->getSpreadsheetRange()) && empty($this->getSpreadsheetRange())) {
+            throw new Exception("There's no spreadsheet range set.");
+        }
+        $result = $this->service->spreadsheets_values->get(
+            $this->getSpreadsheetId(),
+            $this->getSpreadsheetRange()
+        );
+        return $result->getValues();
+    }
+
+    /**
      * Append rows after last row of the current spreadsheet
      * @param array $rowsData Array of values to insert in sheets. Must be a multi-dimensional array.
      * @see https://developers.google.com/sheets/api/guides/concepts
@@ -286,7 +331,7 @@ class Helper
 
         return $updateSheet;
     }
-    
+
     /**
      * Quick function to update a single cell in current worksheet
      * @param string $cell Column letter and row number of cell to update. Example: A1
