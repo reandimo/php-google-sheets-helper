@@ -115,6 +115,17 @@ You can have multiple sheet instances just invoke the Helper as many times you w
   $sheet2->setWorksheetName('Sheet2');
   $sheet2->setSpreadsheetRange('B1:B20');
 ```
+### Get Values
+
+#### Get values from range
+```php
+  $sheet1->setSpreadsheetRange('A1:A3');
+  $insert = $sheet1->appendSingleRow([
+    'some',
+    'useful',
+    'data',
+  ]);
+```
 
 ### Append Data
 
