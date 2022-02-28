@@ -1,4 +1,4 @@
-Google Spreadsheets API Helper
+PHP Google Spreadsheets API Helper
 ======================
 
 [![Latest Stable Version](http://poser.pugx.org/reandimo/google-sheets-helper/v)](https://packagist.org/packages/reandimo/google-sheets-helper) [![License](http://poser.pugx.org/reandimo/google-sheets-helper/license)](https://packagist.org/packages/reandimo/google-sheets-helper) [![PHP Version Require](http://poser.pugx.org/reandimo/google-sheets-helper/require/php)](https://packagist.org/packages/reandimo/google-sheets-helper)
