@@ -29,10 +29,10 @@ Outline
   - [Misc](#misc) 
     - [Change background color of a range](#change-background-color-of-a-range) 
     - [Calculate column index by his letters](#calculate-column-index-by-his-letters) 
-  - [Personal Note](#personal-note) 
-  - [License](#license) 
-  - [Question? Issues?](#questions-issues) 
-  - [Who's Behind](#whos-behind) 
+* [Personal Note](#personal-note) 
+* [License](#license) 
+* [Question? Issues?](#questions-issues) 
+* [Who's Behind](#whos-behind) 
 
 ---
 
@@ -55,7 +55,7 @@ Run Composer in your project:
 
     composer require reandimo/google-sheets-helper
     
-Then you could call it after Composer is loaded depended on your PHP framework:
+Then you could call it after Composer is loaded depending on your PHP framework:
 
 ```php
   require __DIR__ . '/vendor/autoload.php';
@@ -65,7 +65,7 @@ Then you could call it after Composer is loaded depended on your PHP framework:
   $sheet1 = new \reandimo\GoogleSheetsApi\Helper($credentialFilePath, $tokenPath);
 ```
     
-Also you can use putenv() to set credentials.json and token.json like this:
+Also, you can use putenv() to set credentials.json and token.json like this:
 
 ```php
   require __DIR__ . '/vendor/autoload.php';
@@ -82,7 +82,7 @@ Now when you create a new instance, the class automatically detects the paths. T
 Credentials
 ------------
 
-Google API Client needs to validate with 2 files credentials.json and token.json, the last one can be generated with a script included in the package called firstauth. You can use to generate this file for first time only to grant access to the API.
+Google API Client needs to validate with 2 files credentials.json and token.json, the last one can be generated with a script included in the package called firstauth. You can use it to generate this file for the first time only to grant access to the API.
 
 Execute in your project's root folder with `php ./vendor/reandimo/google-sheets-helper/firstauth` and follow the steps.
 
@@ -135,7 +135,7 @@ You can have multiple sheet instances just invoke the Helper as many times you w
   ]);
 ```
 
-The function will return number of rows updated as int. So you can check if its done like this:
+The function will return a number of rows updated as int. So you can check if it's done like this:
 
 ```php
   if($insert >= 1){
@@ -164,6 +164,9 @@ The function will return number of rows updated as int. So you can check if its 
   $sheet1->setSpreadsheetId('somespreadsheetid');
   $sheet1->setWorksheetName('Sheet1');
   $update = $sheet1->updateSingleCell('B5', "Hi i'm a test!");
+  if($update->getUpdatedCells() >= 1){
+    echo 'Cell updated.';
+  }
 ```
 
 #### Update a range
@@ -198,7 +201,7 @@ The function will return number of rows updated as int. So you can check if its 
 ```
 
 #### Calculate column index by his letters
-If for some reason you need to calculate the column positions of a column by his letters, this is the way:
+If for some reason you need to calculate the column positions of a column by its letters, this is the way:
 
 ```php 
   Helper::getColumnLettersIndex('AZ'); // this will return 52
@@ -223,16 +226,18 @@ Some things aren't very clear in Google's documentation without diggin a lot so 
   ```
 
 ## Personal Note
-This package is far from being complete i'll be working on it to make more useful stuff on my free time. But for now, it can be useful for someone (i guessss).
+This package is far from being complete I'll be working on it to make more useful stuff in my free time. But for now, it can be useful for someone (i guessss).
 
 ## License
 
-This Package is open source and released under MIT license. See LICENSE file for more info.
+This Package is open source and released under MIT license. See the LICENSE file for more info.
 
 ## Question? Issues?
 
-Feel free to open issues for suggestions, questions and issues.
+Feel free to open issues for suggestions, questions, and issues.
 
 ## Who's Behind
 
 Renan Diaz, i'm dealing with PHP since 2017 & Google's API since 2019. Feel free to write me to my email (Please don't send any multi-level crap).
+
+
