@@ -5,7 +5,7 @@ if (php_sapi_name() !== 'cli') {
 }
 
 require dirname(__DIR__, 2) . '/autoload.php';
-require __DIR__ . '/src/apiclient/Helper.php';
+require __DIR__ . '/src/Helper.php';
 
 print "Enter default path to find credential.json file [leave blank to use current: ".getcwd()."]:". PHP_EOL;
 $defaultPath = (trim(fgets(STDIN)) == "") ? getcwd() : trim(fgets(STDIN));
