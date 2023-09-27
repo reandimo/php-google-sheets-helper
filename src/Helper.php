@@ -476,10 +476,12 @@ class Helper
 
      /**
      * copy sheet in same spreadsSheet
-     * @return void
+     * @param string $nameDestiny name of new sheeet 
+     * @see https://developers.google.com/resources/api-libraries/documentation/sheets/v4/php/latest/class-Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest.html
+     * @return string
      * 
      */
-    public function duplicateSheetInSameSpreadsheet(?string $nameOrigin = null, ?string $nameDestiny) : void
+    public function duplicateWorksheet(?string $nameDestiny) : string
     {
         if (empty($this->getSpreadsheetId())) {
             throw new Exception("There's no ID spreadsheet set.");
@@ -488,7 +490,7 @@ class Helper
         $spreadsheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
         $sheetId = null;
         foreach ($spreadsheet->getSheets() as $sheet) {
-            if ($sheet->properties->title == $nameOrigin) {
+            if ($sheet->properties->title == $this->getWorksheetName()) {
                 $sheetId = $sheet->properties->sheetId;
                 break;
             }
@@ -518,7 +520,13 @@ class Helper
                 ],
             ],
         ]);
-        $this->service->spreadsheets->batchUpdate($this->getSpreadsheetId(), $batchUpdateRequest);
+        
+        $newSheet = $this->service->spreadsheets->batchUpdate($this->getSpreadsheetId(), $batchUpdateRequest);
+        if(!$newSheet->spreadsheetId){
+            throw new Exception("Can't create the spreadsheet.");
+        }
+
+        return $newSheet->spreadsheetId;
     }
 
 }
