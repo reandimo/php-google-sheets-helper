@@ -7,6 +7,11 @@ use \Google_Client;
 use \Google_Service_Sheets;
 use \Google_Service_Sheets_NamedRange;
 
+use \Google_Service_Sheets_Request;
+use \Google_Service_Sheets_BatchUpdateSpreadsheetRequest;
+use \Google_Service_Sheets_ValueRange;
+use \Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest;
+
 /**
  * Google Spreadsheet API Helper
  * 
@@ -468,5 +473,52 @@ class Helper
         }   
         return (object)$sheets;
 	} 
+
+     /**
+     * copy sheet in same spreadsSheet
+     * @return void
+     * 
+     */
+    public function duplicateSheetInSameSpreadsheet(?string $nameOrigin = null, ?string $nameDestiny) : void
+    {
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set.");
+        }
+        
+        $spreadsheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
+        $sheetId = null;
+        foreach ($spreadsheet->getSheets() as $sheet) {
+            if ($sheet->properties->title == $nameOrigin) {
+                $sheetId = $sheet->properties->sheetId;
+                break;
+            }
+        }
+
+        if(empty($sheetId)){
+        throw new Exception("Not found ID sheet.");
+        }
+
+        // copy data to new sheet
+        $request = new Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest([
+            'destinationSpreadsheetId' => $this->getSpreadsheetId(),
+        ]);
+        $response = $this->service->spreadsheets_sheets->copyTo($this->getSpreadsheetId(), $sheetId, $request);
+
+        // change name new sheet 
+        $response->setTitle($nameDestiny);
+
+        // save changes
+        $batchUpdateRequest = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
+            'requests' => [
+                [
+                    'updateSheetProperties' => [
+                        'properties' => $response,
+                        'fields' => 'title',
+                    ],
+                ],
+            ],
+        ]);
+        $this->service->spreadsheets->batchUpdate($this->getSpreadsheetId(), $batchUpdateRequest);
+    }
 
 }
