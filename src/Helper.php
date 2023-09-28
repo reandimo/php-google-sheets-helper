@@ -511,16 +511,16 @@ class Helper
             throw new Exception("Worksheet with name '{$this->getWorksheetName()}' was not found.");
         }
 
-        // copy data to new sheet
+        ## Copy data to new Worksheet
         $request = new Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest([
             'destinationSpreadsheetId' => $this->getSpreadsheetId(),
         ]);
         $duplicatedWorksheet = $this->service->spreadsheets_sheets->copyTo($this->getSpreadsheetId(), $sheetId, $request);
 
-        // change name new sheet 
+        ## Change name of the new Worksheet 
         $duplicatedWorksheet->setTitle($newWorksheetName);
 
-        // save changes
+        ## Save changes
         $batchUpdateRequest = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
             'requests' => [
                 [
