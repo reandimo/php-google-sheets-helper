@@ -7,6 +7,11 @@ use \Google_Client;
 use \Google_Service_Sheets;
 use \Google_Service_Sheets_NamedRange;
 
+use \Google_Service_Sheets_Request;
+use \Google_Service_Sheets_BatchUpdateSpreadsheetRequest;
+use \Google_Service_Sheets_ValueRange;
+use \Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest;
+
 /**
  * Google Spreadsheet API Helper
  * 
@@ -215,7 +220,13 @@ class Helper
             } else {
                 throw new Exception("You have to run 'firstauth' in your CLI to get a new token.json");
             }
+            // Save the token to a file.
+            if (!file_exists(dirname($this->tokenPath))) {
+                @mkdir(dirname($this->tokenPath), 0700, true);
+            }
+            @file_put_contents($this->tokenPath, json_encode($client->getAccessToken()));
         }
+
         return $client;
     }
 
@@ -468,5 +479,66 @@ class Helper
         }   
         return (object)$sheets;
 	} 
+
+    /**
+     * copy sheet in same spreadsSheet
+     * @param string $newWorksheetName name of the new Worksheet 
+     * @see https://developers.google.com/resources/api-libraries/documentation/sheets/v4/php/latest/class-Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest.html
+     * @return int The ID of the updated spreadsheet
+     * 
+     */
+    public function duplicateWorksheet(?string $newWorksheetName) : int
+    {
+        
+        if (empty($newWorksheetName)) {
+            throw new Exception("You should set the new Worksheet name.");
+        }
+
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set.");
+        }
+        
+        $spreadsheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
+        $sheetId = null;
+        foreach ($spreadsheet->getSheets() as $sheet) {
+            if ($sheet->properties->title == $this->getWorksheetName()) {
+                $sheetId = $sheet->properties->sheetId;
+                break;
+            }
+        }
+
+        if(empty($sheetId)){
+            throw new Exception("Worksheet with name '{$this->getWorksheetName()}' was not found.");
+        }
+
+        ## Copy data to new Worksheet
+        $request = new Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest([
+            'destinationSpreadsheetId' => $this->getSpreadsheetId(),
+        ]);
+        $duplicatedWorksheet = $this->service->spreadsheets_sheets->copyTo($this->getSpreadsheetId(), $sheetId, $request);
+
+        ## Change name of the new Worksheet 
+        $duplicatedWorksheet->setTitle($newWorksheetName);
+
+        ## Save changes
+        $batchUpdateRequest = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
+            'requests' => [
+                [
+                    'updateSheetProperties' => [
+                        'properties' => $duplicatedWorksheet,
+                        'fields' => 'title',
+                    ],
+                ],
+            ],
+        ]);
+        
+        $newSheet = $this->service->spreadsheets->batchUpdate($this->getSpreadsheetId(), $batchUpdateRequest);
+        if(!$newSheet->spreadsheetId){
+            throw new Exception("Could not create the spreadsheet.");
+        }
+
+        return $newSheet->spreadsheetId;
+
+    }
 
 }
