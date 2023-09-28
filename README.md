@@ -88,6 +88,8 @@ Execute in your project's root folder with `php ./vendor/reandimo/google-sheets-
 
 This is a 3 step script based on the quickstart.php mentioned in google's documentation (https://developers.google.com/sheets/api/quickstart/php).
 
+<img src="https://i.imgur.com/CSWXMrq.gif" width="100%"/>
+
 ---
 
 Usage
