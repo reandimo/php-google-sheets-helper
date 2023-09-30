@@ -473,8 +473,12 @@ class Helper
         }
         $spreadSheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
         $sheets = $spreadSheet->getSheets();
+        $formattedSheet = [];
         foreach($sheets as $sheet) {
-            $sheets[] = $sheet->properties->sheetId;
+            $formattedSheet[] = [
+                'id' => $sheet->properties->sheetId,
+                'title' => $sheet->properties->title
+            ];
         }   
         return (object)$sheets;
 	} 
