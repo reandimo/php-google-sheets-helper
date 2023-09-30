@@ -259,9 +259,14 @@ class Helper
         if (empty($this->getSpreadsheetRange()) && empty($this->getSpreadsheetRange())) {
             throw new Exception("There's no spreadsheet range set.");
         }
+        $range = $this->getSpreadsheetRange();
+        if(!empty($this->getWorksheetName())){
+            $range = "{$this->getWorksheetName()}!{$this->getSpreadsheetRange()}";
+        }   
+        
         $result = $this->service->spreadsheets_values->get(
             $this->getSpreadsheetId(),
-            $this->getSpreadsheetRange()
+            $range
         );
         return $result->getValues();
     }
