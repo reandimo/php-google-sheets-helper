@@ -469,21 +469,25 @@ class Helper
 
     /**
      * Get all worksheets of current spreadsheet
-     * @return object
+     * @return array
      * 
      */
-	public function getSpreadsheetWorksheets() : object
+	public function getSpreadsheetWorksheets() : array
     {
         if (empty($this->getSpreadsheetId())) {
             throw new Exception("There's no ID spreadsheet set.");
         }
         $spreadSheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
         $sheets = $spreadSheet->getSheets();
+        $formattedSheet = [];
         foreach($sheets as $sheet) {
-            $sheets[] = $sheet->properties->sheetId;
+            $formattedSheet[] = [
+                'id' => $sheet->properties->sheetId,
+                'title' => $sheet->properties->title
+            ];
         }   
-        return (object)$sheets;
-	} 
+        return $formattedSheet;
+	}  
 
     /**
      * copy sheet in same spreadsSheet
