@@ -600,7 +600,7 @@ class Helper
             throw new Exception("Could not create the spreadsheet.");
         }
 
-        return $newSheet->spreadsheetId;
+        return (int)$newSheet->spreadsheetId;
 
     }
 
