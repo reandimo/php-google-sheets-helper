@@ -260,14 +260,22 @@ class Helper
     public function get()
     {
         if (empty($this->getSpreadsheetId())) {
-            throw new Exception("There's no ID spreadsheet set.");
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
         }
-        if (empty($this->getSpreadsheetRange()) && empty($this->getSpreadsheetRange())) {
-            throw new Exception("There's no spreadsheet range set.");
+
+        if (empty($this->getWorksheetName())) {
+            throw new Exception("There's no worksheet range set. Use: 'setWorksheetName' before and try again.");
         }
+
+        if (empty($this->getSpreadsheetRange())) {
+            throw new Exception("There's no spreadsheet range set. Use: 'setSpreadsheetRange' before and try again.");
+        }
+
+        $range = "{$this->getWorksheetName()}!{$this->getSpreadsheetRange()}";
+        
         $result = $this->service->spreadsheets_values->get(
             $this->getSpreadsheetId(),
-            $this->getSpreadsheetRange()
+            $range
         );
         return $result->getValues();
     }
@@ -281,16 +289,29 @@ class Helper
      */
     public function append(?array $rowsData = [])
     {
+        
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
+
+        if (empty($this->getWorksheetName())) {
+            throw new Exception("There's no worksheet range set. Use: 'setWorksheetName' before and try again.");
+        }
+
+        if (empty($this->getSpreadsheetRange())) {
+            throw new Exception("There's no spreadsheet range set. Use: 'setSpreadsheetRange' before and try again.");
+        }
 
         $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $rowsData]);
         $append = $this->service->spreadsheets_values->append(
             $this->getSpreadsheetId(),
-            $this->getSpreadsheetRange(),
+            "{$this->getWorksheetName()}!{$this->getSpreadsheetRange()}",
             $valueRange,
             ["valueInputOption" => $this->getValueInputOption()],
             ["insertDataOption" => "INSERT_ROWS"]
         );
         return $append->getUpdates();
+
     } 
 
     /**
@@ -302,11 +323,23 @@ class Helper
      */
     public function appendSingleRow(?array $row = []): object
     {
+        
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
+
+        if (empty($this->getWorksheetName())) {
+            throw new Exception("There's no worksheet range set. Use: 'setWorksheetName' before and try again.");
+        }
+
+        if (empty($this->getSpreadsheetRange())) {
+            throw new Exception("There's no spreadsheet range set. Use: 'setSpreadsheetRange' before and try again.");
+        }
 
         $valueRange = new \Google_Service_Sheets_ValueRange(["values" => [$row]]);
         $insert = $this->service->spreadsheets_values->append(
             $this->getSpreadsheetId(),
-            $this->getSpreadsheetRange(),
+            "{$this->getWorksheetName()}!{$this->getSpreadsheetRange()}",
             $valueRange,
             ["valueInputOption" => $this->getValueInputOption()],
             ["insertDataOption" => "INSERT_ROWS"]
@@ -325,17 +358,21 @@ class Helper
     {
 
         if (empty($this->getSpreadsheetId())) {
-            throw new Exception("There's no ID spreadsheet set.");
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
         }
 
-        if (empty($this->getSpreadsheetRange()) && empty($this->getSpreadsheetRange())) {
-            throw new Exception("There's no spreadsheet range set.");
+        if (empty($this->getWorksheetName())) {
+            throw new Exception("There's no worksheet range set. Use: 'setWorksheetName' before and try again.");
+        }
+
+        if (empty($this->getSpreadsheetRange())) {
+            throw new Exception("There's no spreadsheet range set. Use: 'setSpreadsheetRange' before and try again.");
         }
 
         $valueRange = new \Google_Service_Sheets_ValueRange(["values" => $newValues]);
         $updateSheet = $this->service->spreadsheets_values->update(
             $this->getSpreadsheetId(),
-            $this->getSpreadsheetRange(),
+            "{$this->getWorksheetName()}!{$this->getSpreadsheetRange()}",
             $valueRange,
             ["valueInputOption" => $this->getValueInputOption()]
         );
@@ -353,6 +390,10 @@ class Helper
      */
     public function updateSingleCell(?string $cell = null, ?string $value = null): object
     {
+        
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
 
         if ($value == null) {
             throw new Exception("There's no value to set.");
@@ -407,6 +448,19 @@ class Helper
      */
     public function colorRange(?array $rgb): void
     { 
+
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
+        
+        if (empty($this->getWorksheetName())) {
+            throw new Exception("There's no worksheet range set. Use: 'setWorksheetName' before and try again.");
+        }
+        
+        if (empty($this->getSpreadsheetRange())) {
+            throw new Exception("There's no spreadsheet range set. Use: 'setSpreadsheetRange' before and try again.");
+        }
+
         if (count($rgb) < 3) {
             throw new Exception("RGB not correctly configured", 1);
         }
@@ -464,38 +518,47 @@ class Helper
 
     /**
      * Get all worksheets of current spreadsheet
-     * @return object
+     * @return array
      * 
      */
-	public function getSpreadsheetWorksheets() : object
+	public function getSpreadsheetWorksheets() : array
     {
+        
         if (empty($this->getSpreadsheetId())) {
-            throw new Exception("There's no ID spreadsheet set.");
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
         }
+
         $spreadSheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
         $sheets = $spreadSheet->getSheets();
+        $formattedSheet = [];
         foreach($sheets as $sheet) {
-            $sheets[] = $sheet->properties->sheetId;
+            $formattedSheet[] = [
+                'id' => $sheet->properties->sheetId,
+                'title' => $sheet->properties->title
+            ];
         }   
-        return (object)$sheets;
-	} 
+        return $formattedSheet;
+	}  
 
     /**
-     * copy sheet in same spreadsSheet
+     * duplicate current worksheet with a new name into the same spreadsheet
      * @param string $newWorksheetName name of the new Worksheet 
      * @see https://developers.google.com/resources/api-libraries/documentation/sheets/v4/php/latest/class-Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest.html
      * @return int The ID of the updated spreadsheet
-     * 
      */
     public function duplicateWorksheet(?string $newWorksheetName) : int
     {
         
-        if (empty($newWorksheetName)) {
-            throw new Exception("You should set the new Worksheet name.");
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
         }
 
-        if (empty($this->getSpreadsheetId())) {
-            throw new Exception("There's no ID spreadsheet set.");
+        if (empty($this->getWorksheetName())) {
+            throw new Exception("There's no worksheet range set. Use: 'setWorksheetName' before and try again.");
+        }
+        
+        if (empty($newWorksheetName)) {
+            throw new Exception("You should set the new Worksheet name.");
         }
         
         $spreadsheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
@@ -537,7 +600,7 @@ class Helper
             throw new Exception("Could not create the spreadsheet.");
         }
 
-        return $newSheet->spreadsheetId;
+        return (int)$newSheet->spreadsheetId;
 
     }
 
