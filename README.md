@@ -25,10 +25,12 @@ Outline
     - [Append a range](#append-a-range) 
   - [Update Data](#update-data) 
     - [Update single cell](#update-single-cell) 
-    - [Update a range](#update-a-range) 
+    - [Update a range](#update-a-range)
+  - [Clone Worksheet](#clone-worksheet)
+    - 
   - [Misc](#misc) 
     - [Change background color of a range](#change-background-color-of-a-range) 
-    - [Calculate column index by his letters](#calculate-column-index-by-his-letters) 
+    - [Calculate column index by letters](#calculate-column-index-by-his-letters) 
 * [Personal Note](#personal-note) 
 * [License](#license) 
 * [Question? Issues?](#questions-issues) 
@@ -188,6 +190,20 @@ The function will return a number of rows updated as int. So you can check if it
   // Get updated cells
   if($update->getUpdatedCells() >= 1){
     echo 'Range updated.';
+  }
+```
+
+#### Duplicate Worksheet
+```php
+  $sheet1 = new Helper();
+  $sheet1->setSpreadsheetId('somesheetid');
+  $sheet1->setWorksheetName('Sheet1'); // select the Worksheet you want to duplicate
+  $newWorksheetName = 'New Duplicated Sheet'; // The name of the new sheet
+  $sheet_id = $sheets->duplicateWorksheet($newWorksheetName);
+  
+  // Get updated cells
+  if($sheet_id){
+    echo 'The sheet was duplicated B)';
   }
 ```
 
