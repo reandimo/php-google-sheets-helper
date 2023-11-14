@@ -192,6 +192,8 @@ The function will return a number of rows updated as int. So you can check if it
   }
 ```
 
+### Worksheets
+
 #### Duplicate Worksheet
 ```php
   $sheet1 = new Helper();
@@ -206,8 +208,6 @@ The function will return a number of rows updated as int. So you can check if it
   }
 ```
 
-### Misc
-
 #### Change background color of a range
 ```php
   $sheet1 = new Helper();
@@ -216,6 +216,8 @@ The function will return a number of rows updated as int. So you can check if it
   $sheet1->setSpreadsheetRange('A1:Z10');
   $sheet1->colorRange([142, 68, 173]);
 ```
+
+### Misc
 
 #### Calculate column index by the letters
 If for some reason you need to calculate the column positions of a column by its letters, this is the way:
