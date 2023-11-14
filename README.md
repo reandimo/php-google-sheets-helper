@@ -26,12 +26,11 @@ Outline
   - [Update Data](#update-data) 
     - [Update single cell](#update-single-cell) 
     - [Update a range](#update-a-range)
-  - [Clone Worksheet](#clone-worksheet)
-    - 
-  - [Misc](#misc) 
+  - [Worksheets](#worksheets) 
+    - [Duplicate Worksheet](#duplicate-worksheet) 
     - [Change background color of a range](#change-background-color-of-a-range) 
-    - [Calculate column index by letters](#calculate-column-index-by-his-letters) 
-* [Personal Note](#personal-note) 
+  - [Misc](#misc) 
+    - [Calculate column index by the letters](#calculate-column-index-by-the-letters)  
 * [License](#license) 
 * [Question? Issues?](#questions-issues) 
 * [Who's Behind](#whos-behind) 
@@ -218,7 +217,7 @@ The function will return a number of rows updated as int. So you can check if it
   $sheet1->colorRange([142, 68, 173]);
 ```
 
-#### Calculate column index by his letters
+#### Calculate column index by the letters
 If for some reason you need to calculate the column positions of a column by its letters, this is the way:
 
 ```php 
@@ -241,10 +240,7 @@ Some things aren't very clear in Google's documentation without diggin a lot so 
       Google_Model::NULL_VALUE,
       'Sagittarius',
     ]);
-  ```
-
-## Personal Note
-This package is far from being complete I'll be working on it to make more useful stuff in my free time. But for now, it can be useful for someone (i guessss).
+  ``` 
 
 ## License
 
