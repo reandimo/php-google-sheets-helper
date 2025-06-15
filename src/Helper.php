@@ -16,7 +16,7 @@ use \Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest;
  * Google Spreadsheet API Helper
  * 
  * @author      Renan Diaz <reandimo23@gmail.com>
- * @version     1.1.2
+ * @version     1.2.0
  * @filesource 	Google APIs Client Library for PHP <https://github.com/googleapis/google-api-php-client>
  * @see         https://github.com/reandimo/google-sheets-helper 
  * 
