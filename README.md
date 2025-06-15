@@ -20,6 +20,8 @@ Outline
     - [Set sheets props](#set-sheet-props) 
   - [Get Values](#get-values) 
     - [Get values from range](#get-values-from-range) 
+    - [Get the value of a single cell](#get-the-value-of-a-single-cell)
+    - [Find a cell by its value](#find-a-cell-by-its-value)
   - [Append Data](#append-data) 
     - [Append a single row](#append-a-single-row) 
     - [Append a range](#append-a-range) 
@@ -27,9 +29,15 @@ Outline
     - [Update single cell](#update-single-cell) 
     - [Update a range](#update-a-range)
   - [Worksheets](#worksheets) 
+    - [Get all worksheets of current spreadsheet](#get-all-worksheets-of-current-spreadsheet)
     - [Duplicate Worksheet](#duplicate-worksheet) 
+    - [Delete a worksheet by name](#delete-a-worksheet-by-name)
+    - [Rename a worksheet](#rename-a-worksheet)
+    - [Add a new worksheet](#add-a-new-worksheet)
     - [Change background color of a range](#change-background-color-of-a-range) 
+    - [Clear all values in a range](#clear-all-values-in-a-range)
   - [Misc](#misc) 
+    - [Create a new spreadsheet](#create-a-new-spreadsheet)
     - [Calculate column index by the letters](#calculate-column-index-by-the-letters)  
 * [License](#license) 
 * [Question? Issues?](#questions-issues) 
@@ -126,6 +134,29 @@ You can have multiple sheet instances just invoke the Helper as many times you w
   $insert = $sheet1->get();
 ```
 
+#### Get the value of a single cell
+```php
+$sheet1 = new Helper();
+$sheet1->setSpreadsheetId('somespreadsheetid');
+$sheet1->setWorksheetName('Sheet1');
+$value = $sheet1->getSingleCellValue('B2');
+echo "Value in B2: $value\n";
+```
+
+#### Find a cell by its value
+```php
+$sheet1 = new Helper();
+$sheet1->setSpreadsheetId('somespreadsheetid');
+$sheet1->setWorksheetName('Sheet1');
+$sheet1->setSpreadsheetRange('A1:Z100');
+$result = $sheet1->findCellByValue('searchValue');
+if ($result) {
+    echo "Found at cell: {$result['cell']} (row {$result['row']}, column {$result['column']})\n";
+} else {
+    echo 'Value not found.';
+}
+```
+
 ### Append Data
 
 #### Append a single row
@@ -194,6 +225,16 @@ The function will return a number of rows updated as int. So you can check if it
 
 ### Worksheets
 
+#### Get all worksheets of current spreadsheet
+```php
+$sheet1 = new Helper();
+$sheet1->setSpreadsheetId('somespreadsheetid');
+$worksheets = $sheet1->getSpreadsheetWorksheets();
+foreach ($worksheets as $ws) {
+    echo "Sheet ID: {$ws['id']}, Title: {$ws['title']}\n";
+}
+```
+
 #### Duplicate Worksheet
 ```php
   $sheet1 = new Helper();
@@ -208,6 +249,35 @@ The function will return a number of rows updated as int. So you can check if it
   }
 ```
 
+
+#### Delete a worksheet by name
+```php
+$sheet1 = new Helper();
+$sheet1->setSpreadsheetId('somespreadsheetid');
+$deleted = $sheet1->deleteWorksheet('SheetToDelete');
+if ($deleted) {
+    echo 'Worksheet deleted.';
+}
+```
+
+#### Rename a worksheet
+```php
+$sheet1 = new Helper();
+$sheet1->setSpreadsheetId('somespreadsheetid');
+$renamed = $sheet1->renameWorksheet('OldSheetName', 'NewSheetName');
+if ($renamed) {
+    echo 'Worksheet renamed.';
+}
+```
+
+#### Add a new worksheet
+```php
+$sheet1 = new Helper();
+$sheet1->setSpreadsheetId('somespreadsheetid');
+$newSheetId = $sheet1->addWorksheet('NewSheet', 100, 10);
+echo "New worksheet ID: $newSheetId\n";
+```
+
 #### Change background color of a range
 ```php
   $sheet1 = new Helper();
@@ -217,7 +287,26 @@ The function will return a number of rows updated as int. So you can check if it
   $sheet1->colorRange([142, 68, 173]);
 ```
 
+#### Clear all values in a range
+```php
+$sheet1 = new Helper();
+$sheet1->setSpreadsheetId('somespreadsheetid');
+$sheet1->setWorksheetName('Sheet1');
+$sheet1->setSpreadsheetRange('A1:Z100');
+$cleared = $sheet1->clearRange();
+if ($cleared) {
+    echo 'Range cleared.';
+}
+```
+
 ### Misc
+
+#### Create a new spreadsheet
+```php
+$sheet1 = new Helper();
+$newSpreadsheetId = $sheet1->create('My New Spreadsheet');
+echo "Created spreadsheet with ID: $newSpreadsheetId\n";
+```
 
 #### Calculate column index by the letters
 If for some reason you need to calculate the column positions of a column by its letters, this is the way:

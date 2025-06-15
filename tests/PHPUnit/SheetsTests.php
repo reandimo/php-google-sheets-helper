@@ -153,4 +153,88 @@ class SheetsTests extends TestCase
         $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
         var_dump($sheet1->getSpreadsheetWorksheets());
     }
+
+    public function testDeleteWorksheet()
+    {
+        putenv('credentialFilePath=' . dirname(__DIR__, 2) . '/credentials.json');
+        putenv('tokenPath=' . dirname(__DIR__, 2) . '/token.json');
+        $sheet1 = new Helper();
+        $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+        // Add a worksheet to delete
+        $newSheetId = $sheet1->addWorksheet('TempSheetToDelete', 10, 5);
+        $deleted = $sheet1->deleteWorksheet('TempSheetToDelete');
+        $this->assertTrue($deleted);
+    }
+
+    public function testRenameWorksheet()
+    {
+        putenv('credentialFilePath=' . dirname(__DIR__, 2) . '/credentials.json');
+        putenv('tokenPath=' . dirname(__DIR__, 2) . '/token.json');
+        $sheet1 = new Helper();
+        $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+        // Add a worksheet to rename
+        $newSheetId = $sheet1->addWorksheet('TempSheetToRename', 10, 5);
+        $renamed = $sheet1->renameWorksheet('TempSheetToRename', 'TempSheetRenamed');
+        $this->assertTrue($renamed);
+        // Clean up
+        $sheet1->deleteWorksheet('TempSheetRenamed');
+    }
+
+    public function testClearRange()
+    {
+        putenv('credentialFilePath=' . dirname(__DIR__, 2) . '/credentials.json');
+        putenv('tokenPath=' . dirname(__DIR__, 2) . '/token.json');
+        $sheet1 = new Helper();
+        $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+        $sheet1->setWorksheetName('Sheet1');
+        $sheet1->setSpreadsheetRange('A1:Z10');
+        $cleared = $sheet1->clearRange();
+        $this->assertTrue($cleared);
+    }
+
+    public function testAddWorksheet()
+    {
+        putenv('credentialFilePath=' . dirname(__DIR__, 2) . '/credentials.json');
+        putenv('tokenPath=' . dirname(__DIR__, 2) . '/token.json');
+        $sheet1 = new Helper();
+        $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+        $newSheetId = $sheet1->addWorksheet('TempSheetAdd', 10, 5);
+        $this->assertIsInt($newSheetId);
+        // Clean up
+        $sheet1->deleteWorksheet('TempSheetAdd');
+    }
+
+    public function testGetSingleCellValue()
+    {
+        putenv('credentialFilePath=' . dirname(__DIR__, 2) . '/credentials.json');
+        putenv('tokenPath=' . dirname(__DIR__, 2) . '/token.json');
+        $sheet1 = new Helper();
+        $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+        $sheet1->setWorksheetName('Sheet1');
+        $value = $sheet1->getSingleCellValue('A1');
+        $this->assertTrue($value === null || is_scalar($value));
+    }
+
+    public function testFindCellByValue()
+    {
+        putenv('credentialFilePath=' . dirname(__DIR__, 2) . '/credentials.json');
+        putenv('tokenPath=' . dirname(__DIR__, 2) . '/token.json');
+        $sheet1 = new Helper();
+        $sheet1->setSpreadsheetId(self::GOOGLE_SHEET_TEST_ID);
+        $sheet1->setWorksheetName('Sheet1');
+        $sheet1->setSpreadsheetRange('A1:Z100');
+        $result = $sheet1->findCellByValue('test');
+        $this->assertTrue($result === null || (isset($result['cell']) && isset($result['row']) && isset($result['column'])));
+    }
+
+    public function testCreateSpreadsheet()
+    {
+        putenv('credentialFilePath=' . dirname(__DIR__, 2) . '/credentials.json');
+        putenv('tokenPath=' . dirname(__DIR__, 2) . '/token.json');
+        $sheet1 = new Helper();
+        $title = 'Test Created Spreadsheet';
+        $spreadsheetId = $sheet1->create($title);
+        $this->assertIsString($spreadsheetId);
+        // Optionally, clean up by deleting the spreadsheet via API if needed
+    }
 }
