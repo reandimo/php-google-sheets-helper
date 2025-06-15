@@ -715,4 +715,173 @@ class Helper
         return $limit === 1 ? null : $results;
     } 
 
+    /**
+     * Delete a worksheet by its name from the current spreadsheet.
+     * @param string $worksheetName Name of the worksheet to delete.
+     * @return bool True if deleted, false otherwise.
+     */
+    public function deleteWorksheet(?string $worksheetName): bool
+    {
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
+        if (empty($worksheetName)) {
+            throw new Exception("You must provide a worksheet name to delete.");
+        }
+
+        $spreadsheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
+        $sheetId = null;
+        foreach ($spreadsheet->getSheets() as $sheet) {
+            if ($sheet->properties->title == $worksheetName) {
+                $sheetId = $sheet->properties->sheetId;
+                break;
+            }
+        }
+        if ($sheetId === null) {
+            throw new Exception("Worksheet with name '{$worksheetName}' was not found.");
+        }
+
+        $requests = [
+            new \Google_Service_Sheets_Request([
+                'deleteSheet' => [
+                    'sheetId' => $sheetId
+                ]
+            ])
+        ];
+        $batchUpdateRequest = new \Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
+            'requests' => $requests
+        ]);
+        $this->service->spreadsheets->batchUpdate($this->getSpreadsheetId(), $batchUpdateRequest);
+        return true;
+    }
+
+    /**
+     * Rename a worksheet in the current spreadsheet.
+     * @param string $oldName Current worksheet name.
+     * @param string $newName New worksheet name.
+     * @return bool True if renamed, false otherwise.
+     */
+    public function renameWorksheet(?string $oldName, ?string $newName): bool
+    {
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
+        if (empty($oldName) || empty($newName)) {
+            throw new Exception("Both old and new worksheet names must be provided.");
+        }
+
+        $spreadsheet = $this->service->spreadsheets->get($this->getSpreadsheetId());
+        $sheetId = null;
+        foreach ($spreadsheet->getSheets() as $sheet) {
+            if ($sheet->properties->title == $oldName) {
+                $sheetId = $sheet->properties->sheetId;
+                break;
+            }
+        }
+        if ($sheetId === null) {
+            throw new Exception("Worksheet with name '{$oldName}' was not found.");
+        }
+
+        $requests = [
+            new \Google_Service_Sheets_Request([
+                'updateSheetProperties' => [
+                    'properties' => [
+                        'sheetId' => $sheetId,
+                        'title' => $newName
+                    ],
+                    'fields' => 'title'
+                ]
+            ])
+        ];
+        $batchUpdateRequest = new \Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
+            'requests' => $requests
+        ]);
+        $this->service->spreadsheets->batchUpdate($this->getSpreadsheetId(), $batchUpdateRequest);
+        return true;
+    }
+
+    /**
+     * Clear all values in the specified range of the current worksheet.
+     * @return bool True if cleared, false otherwise.
+     */
+    public function clearRange(): bool
+    {
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
+        if (empty($this->getWorksheetName())) {
+            throw new Exception("There's no worksheet range set. Use: 'setWorksheetName' before and try again.");
+        }
+        if (empty($this->getSpreadsheetRange())) {
+            throw new Exception("There's no spreadsheet range set. Use: 'setSpreadsheetRange' before and try again.");
+        }
+
+        $range = "{$this->getWorksheetName()}!{$this->getSpreadsheetRange()}";
+        $this->service->spreadsheets_values->clear($this->getSpreadsheetId(), $range, new \Google_Service_Sheets_ClearValuesRequest());
+        return true;
+    }
+
+    /**
+     * Add a new worksheet to the current spreadsheet.
+     * @param string $worksheetName Name of the new worksheet.
+     * @param int $rowCount Number of rows (default 1000).
+     * @param int $columnCount Number of columns (default 26).
+     * @return int Sheet ID of the new worksheet.
+     */
+    public function addWorksheet(?string $worksheetName, int $rowCount = 1000, int $columnCount = 26): int
+    {
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
+        if (empty($worksheetName)) {
+            throw new Exception("You must provide a worksheet name to add.");
+        }
+
+        $requests = [
+            new \Google_Service_Sheets_Request([
+                'addSheet' => [
+                    'properties' => [
+                        'title' => $worksheetName,
+                        'gridProperties' => [
+                            'rowCount' => $rowCount,
+                            'columnCount' => $columnCount
+                        ]
+                    ]
+                ]
+            ])
+        ];
+        $batchUpdateRequest = new \Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
+            'requests' => $requests
+        ]);
+        $response = $this->service->spreadsheets->batchUpdate($this->getSpreadsheetId(), $batchUpdateRequest);
+        $replies = $response->getReplies();
+        if (isset($replies[0]->addSheet->properties->sheetId)) {
+            return $replies[0]->addSheet->properties->sheetId;
+        }
+        throw new Exception("Failed to add worksheet.");
+    }
+
+    /**
+     * Get the values of a single cell.
+     * @param string $cell Cell reference (e.g., "A1").
+     * @return mixed|null Value of the cell or null if not found.
+     */
+    public function getSingleCellValue(?string $cell)
+    {
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
+        if (empty($this->getWorksheetName())) {
+            throw new Exception("There's no worksheet range set. Use: 'setWorksheetName' before and try again.");
+        }
+        if (empty($cell)) {
+            throw new Exception("You must provide a cell reference.");
+        }
+
+        $range = "{$this->getWorksheetName()}!{$cell}";
+        $result = $this->service->spreadsheets_values->get($this->getSpreadsheetId(), $range);
+        $values = $result->getValues();
+        return isset($values[0][0]) ? $values[0][0] : null;
+    }
+
 }
