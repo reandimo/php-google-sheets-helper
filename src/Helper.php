@@ -16,7 +16,7 @@ use \Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest;
  * Google Spreadsheet API Helper
  * 
  * @author      Renan Diaz <reandimo23@gmail.com>
- * @version     1.0.0
+ * @version     1.1.2
  * @filesource 	Google APIs Client Library for PHP <https://github.com/googleapis/google-api-php-client>
  * @see         https://github.com/reandimo/google-sheets-helper 
  * 
@@ -103,11 +103,23 @@ class Helper
 
     }
 
+    /**
+     * Set the current spreadsheet ID.
+     * The spreadsheet ID is the unique identifier of the spreadsheet.
+     * @param string|null $spreadsheetId
+     * @return void
+     */
     public function setSpreadsheetId(?string $spreadsheetId)
     {
         $this->spreadsheetId = $spreadsheetId;
     }
 
+    /**
+     * Get the current spreadsheet ID.
+     * The spreadsheet ID is the unique identifier of the spreadsheet.
+     * 
+     * @return string|null
+     */
     public function getSpreadsheetId()
     {
         return $this->spreadsheetId;
@@ -118,36 +130,80 @@ class Helper
         return $this->service;
     }
 
+    /**
+    * Set the range of the spreadsheet to work with.
+    * The range should be in A1 notation, e.g. "A1:B10".
+    * If you want to set a whole column, use "A:A" or "B:B".
+    * If you want to set a whole row, use "1:1" or "2:2".
+    * 
+    * @param string|null $range
+    */
     public function setSpreadsheetRange(?string $range)
     {
         $this->range = $range;
     }
 
+    /**
+    * Get the current range of the spreadsheet.
+    * The range is in A1 notation, e.g. "A1:B10".
+    */
     public function getSpreadsheetRange()
     {
         return $this->range;
     }
 
+    /**
+     * Set the name of the worksheet to work with.
+     * The worksheet name should be the exact name of the sheet in the spreadsheet.
+     * 
+     * @param string|null $worksheetName
+     */
     public function setWorksheetName(?string $worksheetName)
     {
         $this->worksheetName = $worksheetName;
     }
 
+    /**
+     * Get the current name of the worksheet.
+     * The worksheet name is the exact name of the sheet in the spreadsheet.
+     * 
+     * @return string|null
+     */
     public function getWorksheetName()
     {
         return $this->worksheetName;
     } 
 
+    /**
+     * Set the value input option for the API.
+     * The value input option determines how the values are interpreted when written to the sheet.
+     * Possible values are "RAW" or "USER_ENTERED".
+     * 
+     * @param string|null $valueInputOption
+     */
     public function setValueInputOption(?string $valueInputOption)
     {
         $this->valueInputOption = $valueInputOption;
     }
 
+    /**
+     * Get the current value input option.
+     * The value input option determines how the values are interpreted when written to the sheet.
+     * Possible values are "RAW" or "USER_ENTERED".
+     * 
+     * @return string|null
+     */
     public function getValueInputOption()
     {
         return $this->valueInputOption;
     } 
 
+    /**
+     * Set the application name for the Google Sheets API.
+     * This is used for identification purposes in the Google Cloud Console.
+     * 
+     * @param string|null $appName
+     */
     public function firstAuth(?string $tokenPath = null)
     {
         if ($tokenPath == null) {
@@ -518,8 +574,7 @@ class Helper
 
     /**
      * Get all worksheets of current spreadsheet
-     * @return array
-     * 
+     * @return array Returns an array of worksheets with their IDs and titles.
      */
 	public function getSpreadsheetWorksheets() : array
     {
@@ -603,5 +658,61 @@ class Helper
         return (int)$newSheet->spreadsheetId;
 
     }
+
+    /**
+     * Find a cell by its value in the current worksheet.
+     * This function searches through all cells in the specified range of the current worksheet.
+     * @param string $value value to search in the current worksheet
+     * @param int $limit The maximum number of cells to find. Default is 1. If set to 0, it will return all cells found.
+     * @return array|null Returns an array with the cell coordinates or null if not found.
+     */
+    public function findCellByValue(?string $value, int $limit = 1): ?array
+    {
+        if (empty($this->getSpreadsheetId())) {
+            throw new Exception("There's no ID spreadsheet set. Use: 'setSpreadsheetId' before and try again.");
+        }
+        if (empty($this->getWorksheetName())) {
+            throw new Exception("There's no worksheet range set. Use: 'setWorksheetName' before and try again.");
+        }
+        if (empty($this->getSpreadsheetRange())) {
+            throw new Exception("There's no spreadsheet range set. Use: 'setSpreadsheetRange' before and try again.");
+        }
+
+        $range = "{$this->getWorksheetName()}!{$this->getSpreadsheetRange()}";
+        $values = $this->service->spreadsheets_values->get($this->getSpreadsheetId(), $range)->getValues();
+
+        $rangeParts = explode(':', $this->getSpreadsheetRange());
+        $startColLetters = preg_replace('/[0-9]+/', '', $rangeParts[0]);
+        $startColIndex = max(self::getColumnLettersIndex($startColLetters) - 1, 0);
+        $startRow = max((int)preg_replace('/[^0-9]/', '', $rangeParts[0]), 1);
+
+        $results = [];
+        foreach ($values as $rowIndex => $row) {
+            foreach ($row as $colIndex => $cellValue) {
+                if ($cellValue === $value) {
+                    $realColIndex = $startColIndex + $colIndex;
+                    $realRowIndex = $startRow + $rowIndex;
+                    
+                    $results[] = [
+                        'row' => $realRowIndex,
+                        'column' => $realColIndex,
+                        'cell' => (self::LETTERS[$realColIndex] ?? '') . $realRowIndex,
+                        // DEBUG INFO
+                        'context' => [
+                            'startLetter' => $startColLetters,
+                            'startColumnIndex' => $startColIndex,
+                            'startRow' => $startRow,
+                            'range' => $this->getSpreadsheetRange(),
+                            'value' => $cellValue,
+                        ]
+                    ];
+                    if ($limit > 0 && count($results) >= $limit) {
+                        return $limit === 1 ? $results[0] : $results;
+                    }
+                }
+            }
+        }
+        return $limit === 1 ? null : $results;
+    } 
 
 }
