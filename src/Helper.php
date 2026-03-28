@@ -220,9 +220,22 @@ class Helper
 
         // Request authorization from the user.
         $authUrl = $client->createAuthUrl();
-        printf("Open the following link in your browser:\n%s\n", $authUrl);
-        print 'Enter verification code: ';
+
+        $isCli = php_sapi_name() === 'cli';
+
+        if ($isCli) {
+            echo "\033[38;5;116m  ℹ \033[0mOpen this URL in your browser:\033[0m\n";
+            echo "\n";
+            echo "\033[38;5;75m  " . $authUrl . "\033[0m\n";
+            echo "\n";
+            echo "\033[38;5;75m  › \033[0mVerification code \033[38;5;75m› \033[0m";
+        } else {
+            printf("Open the following link in your browser:\n%s\n", $authUrl);
+            print 'Enter verification code: ';
+        }
+
         $authCode = trim(fgets(STDIN));
+        if ($isCli) echo "\n";
 
         // Exchange authorization code for an access token.
         $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
@@ -231,13 +244,11 @@ class Helper
         // Check to see if there was an error.
         if (array_key_exists('error', $accessToken)) {
             throw new Exception(join(', ', $accessToken));
-        } 
+        }
         @mkdir(dirname($this->tokenPath), 0700, true);
         @file_put_contents($this->tokenPath, json_encode($client->getAccessToken()));
 
-        if (file_exists($this->tokenPath)) {
-            print "Token file successfully created in: {$this->tokenPath}. Congrats now you can access the API.";
-        } else {
+        if (!file_exists($this->tokenPath)) {
             throw new Exception("Token file could not be created. Try again or check your log.");
         }
     }
