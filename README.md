@@ -60,7 +60,11 @@ Follow the interactive steps — this only needs to be done once.
 <details>
 <summary>See it in action</summary>
 
-<img src="https://i.imgur.com/CSWXMrq.gif" width="100%"/>
+<br>
+
+<p align="center">
+  <img src="docs/terminal-preview.svg" alt="firstauth terminal preview" width="100%">
+</p>
 
 </details>
 
